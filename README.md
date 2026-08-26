@@ -206,11 +206,9 @@ TRUST-Seg/
 ├── prepare_ensemble.py
 ├── train.py
 ├── refine.py
-.
-.
-└── evaluate.py
+├── evaluate.py
+└── ...
 ```
-
 
 ## Acknowledgements
 
