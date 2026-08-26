@@ -78,8 +78,8 @@ python scripts/preprocess/generate_bboxes.py \
   --expansion 0
 ```
 
-Each connected lesion receives a tight 2D box. 
-> Intersecting boxes are recursively merged. The paper's main experiments use `--expansion 0`; positive values reproduce the expanded-box ablations.
+Each connected lesion receives a tight 2D box. Intersecting boxes are recursively merged. 
+> The paper's main experiments use `--expansion 0`; positive values reproduce the expanded-box ablations.
 
 ### 3. Reconstruct image, label, and bbox volumes
 
@@ -104,7 +104,9 @@ This repository does not redistribute foundation-model source code or checkpoint
 
 Users are responsible for downloading the repositories and checkpoints, satisfying their licenses, installing their dependencies, and generating their own pseudo-labels. The scripts below only adapt locally installed models to TRUST-Seg's images and bbox prompts.
 
-For SAM or MedSAM 2D inference:
+> The paper uses SAM-L, MedSAM2-B, and GrabCut for ISLES 2022, and MedSAM2-CT, SAM2-S, and GrabCut for BraTS 2019.
+
+### 1. For SAM or MedSAM 2D inference:
 
 ```bash
 python scripts/external/generate_sam_2d.py \
@@ -118,7 +120,8 @@ python scripts/external/generate_sam_2d.py \
 
 Convert the resulting slices to volumes with `scripts/preprocess/stack_masks.py`.
 
-For SAM2 or MedSAM2 volumetric inference, use the supplied adaptation of `generate_sudo_sam2_sam3d_2dbbox`:
+### 2. For SAM2 or MedSAM2 volumetric inference:
+Use the supplied adaptation of `generate_sudo_sam2_sam3d_2dbbox`:
 
 ```bash
 python scripts/external/generate_sam2_3d.py \
@@ -132,12 +135,10 @@ python scripts/external/generate_sam2_3d.py \
 
 The selected external checkout must provide `build_sam2_video_predictor_npz`, as used by the original experiment script. Model configuration names and checkpoint locations come from the external repository and may differ across releases.
 
-The paper uses SAM-L, MedSAM2-B, and GrabCut for ISLES 2022, and MedSAM2-CT, SAM2-S, and GrabCut for BraTS 2019.
-
-For Generate GrabCut inference:
+### 3. For Generate GrabCut inference:
 
 ```bash
-python scripts/preprocess/generate_grabcut.py \
+python scripts/external/generate_grabcut.py \
   --images-dir data/ISLES_128/ISLES22_DWI_128/DWI/train \
   --bbox-json data/ISLES_128/bbox_train_000.json \
   --output-dir data/ISLES_128/grabcut_masks/train_000
@@ -147,7 +148,6 @@ python scripts/preprocess/stack_masks.py \
   --reference-images data/ISLES_128/3D_volumes/train_00_NIFTI/images \
   --output-dir data/ISLES_128/grabcut_masks/volumes_train_000
 ```
-
 
 ## Training and evaluation
 
@@ -197,31 +197,20 @@ Evaluation reports patient-level 3D DSC, IoU, HD95, and ASD and saves the predic
 ```text
 TRUST-Seg/
 ├── configs/                 # Dataset paths and paper hyperparameters
-├── data/                    # Dataset instructions and small samples
-├── figures/                 # Framework overview
+├── data/                    # Dataset and its instructions
 ├── scripts/
-│   ├── external/            # Local SAM-family adapters
-│   └── preprocess/          # Slicing, bboxes, GrabCut, and volume building
+│   ├── external/            # Local SAM-family and GrabCut adapters
+│   └── preprocess/          # Slicing, bboxes, and volume building
 ├── tests/                   # Core mathematical and model tests
 ├── trustseg/                # Dataset, model, loss, ensemble, SDA, and metrics
 ├── prepare_ensemble.py
 ├── train.py
 ├── refine.py
+.
+.
 └── evaluate.py
 ```
 
-## Citation
-
-If you find this work useful, please consider citing:
-
-```bibtex
-@article{alshurbaji2026trustseg,
-  title   = {TRUST-Seg: A Multi-Teacher Ensemble Framework for Weakly Supervised Brain Lesion Segmentation},
-  author  = {Mohammad Alshurbaji and Maregu Assefa and Mohamed L. Seghier and Taimur Hassan and Kamal Taha and Naoufel Werghi},
-  journal = {Biomedical Signal Processing and Control},
-  year    = {2026}
-}
-```
 
 ## Acknowledgements
 
