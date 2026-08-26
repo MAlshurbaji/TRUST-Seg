@@ -1,6 +1,6 @@
 # TRUST-Seg: A Multi-Teacher Ensemble Framework for Weakly Supervised Brain Lesion Segmentation
 
-![TRUST-Seg framework](figures/framework.png)
+![framework](figures/framework.png)
 
 > This is the official implementation of **TRUST-Seg: A Multi-Teacher Ensemble Framework for Weakly Supervised Brain Lesion Segmentation**.
 >
