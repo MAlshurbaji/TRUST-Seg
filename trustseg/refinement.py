@@ -12,7 +12,7 @@ def smooth_delta_attention(
     student_threshold: float,
     confidence_threshold: float,
     attention_steepness: float,
-    confidence_alpha: float,
+    alpha_conf: float,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     student_probability = np.clip(student_probability, 0.0, 1.0).astype(np.float32)
     teacher_consensus = np.clip(teacher_consensus, 0.0, 1.0).astype(np.float32)
@@ -22,9 +22,12 @@ def smooth_delta_attention(
     student_confidence = 2.0 * np.abs(student_probability - 0.5)
     teacher_certainty = 1.0 - teacher_uncertainty
     delta = student_confidence - teacher_certainty
-    attention = 1.0 / (1.0 + np.exp(-float(attention_steepness) * delta))
+    attention_alpha = 1.0 / (1.0 + np.exp(-float(attention_steepness) * delta))
 
-    candidate = attention * student_probability + (1.0 - attention) * teacher_consensus
+    candidate = (
+        attention_alpha * student_probability
+        + (1.0 - attention_alpha) * teacher_consensus
+    )
     safeguard = (student_confidence >= float(student_threshold)).astype(np.float32)
     refined = safeguard * candidate + (1.0 - safeguard) * teacher_consensus
     refined *= bbox_gate
@@ -36,7 +39,7 @@ def smooth_delta_attention(
     )
     refined_uncertainty = np.clip(refined_uncertainty, 0.0, 1.0) * bbox_gate
 
-    confidence = np.exp(-float(confidence_alpha) * refined_uncertainty)
+    confidence = np.exp(-float(alpha_conf) * refined_uncertainty)
     if confidence_threshold > 0:
         confidence *= confidence >= float(confidence_threshold)
 
@@ -44,6 +47,5 @@ def smooth_delta_attention(
         refined.astype(np.float32),
         refined_uncertainty.astype(np.float32),
         confidence.astype(np.float32),
-        attention.astype(np.float32),
+        attention_alpha.astype(np.float32),
     )
-
