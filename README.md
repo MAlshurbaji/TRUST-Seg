@@ -264,6 +264,8 @@ This produces the reliability-weighted soft target, normalized disagreement unce
 python train.py --config configs/isles22.yaml --stage initial
 ```
 
+This trains the initial 3D U-Net from scratch using the MRI volume and bbox prior as input. The reliability-weighted teacher consensus provides the soft training target, while the confidence map weights the BCE and Dice losses so that uncertain voxels contribute less during optimization.
+
 ### 3. Apply Smooth Delta Attention refinement
 
 ```bash
@@ -272,11 +274,15 @@ python refine.py \
   --checkpoint runs/isles22/initial/best_model.pth
 ```
 
+This runs the converged initial student on every training volume and compares its voxel-wise self-confidence with the teacher ensemble certainty. Smooth Delta Attention dynamically blends the student prediction with the initial teacher consensus, then produces the refined soft target, refined uncertainty map, and refined confidence map used in the final stage.
+
 ### 4. Train the final student from scratch
 
 ```bash
 python train.py --config configs/isles22.yaml --stage final
 ```
+
+This initializes a new 3D U-Net and trains it from scratch using the MRI volume, bbox prior, SDA-refined soft targets, and refined confidence weights. 
 
 ### 5. Evaluate the final model
 
