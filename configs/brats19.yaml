@@ -41,11 +41,10 @@ training:
   threshold: 0.5
 
 ensemble:
-  confidence_alpha: 1.0
+  alpha_conf: 1.0
 
 refinement:
   uncertainty_weight: 0.3
   student_threshold: 0.3
   confidence_threshold: 0.5
   attention_steepness: 7.0
-  confidence_alpha: 1.0
