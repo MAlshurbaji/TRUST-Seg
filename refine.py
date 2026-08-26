@@ -78,7 +78,7 @@ def main() -> None:
                 student_threshold=float(refinement["student_threshold"]),
                 confidence_threshold=float(refinement["confidence_threshold"]),
                 attention_steepness=float(refinement["attention_steepness"]),
-                confidence_alpha=float(refinement["confidence_alpha"]),
+                alpha_conf=alpha_conf,
             )
 
             prefix = output_dir / f"{case_id}_image_mask"
@@ -93,4 +93,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
