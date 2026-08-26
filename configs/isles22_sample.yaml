@@ -1,0 +1,52 @@
+dataset:
+  name: isles22_sample
+  modality: DWI
+  train_volumes: data/ISLES_128/sample/3D_volumes/train_val_00_NIFTI
+  validation_volumes: data/ISLES_128/sample/3D_volumes/test_00_NIFTI
+  test_volumes: data/ISLES_128/sample/3D_volumes/test_00_NIFTI
+
+paths:
+  initial_pseudo_labels: data/ISLES_128/sample/pseudo_labels/ensemble
+  refined_pseudo_labels: data/ISLES_128/sample/pseudo_labels/refined
+  runs: runs/isles22_sample
+
+teachers:
+  sam_large:
+    path: data/ISLES_128/sample/pseudo_labels/sam_large
+    reliability: 0.776
+  medsam2_base:
+    path: data/ISLES_128/sample/pseudo_labels/medsam2_base
+    reliability: 0.709
+  grabcut:
+    path: data/ISLES_128/sample/pseudo_labels/grabcut
+    reliability: 0.654
+
+model:
+  image_channels: 1
+  with_bbox: true
+  supervised_with_bbox: false
+  base_channels: 16
+  dropout: 0.3
+
+training:
+  seed: 2024
+  device: cuda
+  workers: 0
+  batch_size: 1
+  learning_rate: 0.0001
+  initial_epochs: 1
+  final_epochs: 1
+  supervised_epochs: 1
+  padding_factor: 16
+  threshold: 0.5
+
+ensemble:
+  confidence_alpha: 1.0
+
+refinement:
+  uncertainty_weight: 0.7
+  student_threshold: 0.3
+  confidence_threshold: 0.0
+  attention_steepness: 8.0
+  confidence_alpha: 1.0
+
