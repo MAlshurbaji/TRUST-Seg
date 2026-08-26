@@ -3,8 +3,6 @@
 ![framework](figures/framework.png)
 
 > This is the official implementation of **TRUST-Seg: A Multi-Teacher Ensemble Framework for Weakly Supervised Brain Lesion Segmentation**.
->
-> TRUST-Seg trains 3D lesion segmentation networks from tight slice-wise bounding boxes and pseudo-labels. Voxel-level masks are not used as optimization targets for either TRUST-Seg student network.
 
 **Release date:** 26/Aug/2026
 
@@ -14,41 +12,24 @@ TRUST-Seg (Teacher-Refined Uncertainty-aware Soft-label Training) is a weakly su
 
 ## Installation
 
-The experiments were conducted with Python 3.10, PyTorch 2.6, CUDA 12.5, and an NVIDIA A100 GPU. Install the PyTorch build appropriate for your CUDA environment, then install this repository:
+The experiments were conducted with Python 3.10, PyTorch 2.6, and CUDA 12.5. Ensure that you install all the dependencies listed in `requirements.txt`.
 
 ```bash
 conda create -n trustseg python=3.10 -y
 conda activate trustseg
 cd TRUST-Seg
-pip install -e ".[preprocessing]"
+pip install -r requirements.txt
 ```
 
 SAM, SAM2, MedSAM, and MedSAM2 are external projects and are intentionally not installed by the command above. See [External pseudo-label generators](#external-pseudo-label-generators).
 
 ## Datasets
-
-Download ISLES 2022 from the [official ISLES challenge](https://isles22.grand-challenge.org/) and BraTS 2019 from the [official CBICA challenge page](https://www.med.upenn.edu/cbica/brats2019/data.html). Users are responsible for accepting and following each dataset's access and usage terms.
+ISLES-2022 dataset can be downloaded from [Kaggle](https://www.kaggle.com/datasets/orvile/isles-2022-brain-stoke-dataset), and BraTS-2019 dataset from [Kaggle](https://www.kaggle.com/datasets/aryashah2k/brain-tumor-segmentation-brats-2019/data). Users are responsible for accepting and following each dataset's access and usage terms.
 
 TRUST-Seg uses:
 
 - ISLES 2022: DWI volumes and binary stroke-lesion labels; 187 training, 25 validation, and 38 test cases.
 - BraTS 2019: FLAIR volumes with all tumor subregions merged into one binary label; 252 training, 33 validation, and 50 test cases.
-
-All splits must be patient-wise. The included files are samples only and do not contain either complete dataset. A filename such as `001_004.png` denotes case `001`, slice `004`.
-
-The supplied ISLES image and label slices originate from:
-
-```text
-data/ISLES_128/ISLES22_DWI_128/
-├── DWI/
-│   ├── train/
-│   ├── val/
-│   └── test/
-└── Mask/
-    ├── train/
-    ├── val/
-    └── test/
-```
 
 The training commands use reconstructed NIfTI volumes with this structure:
 
@@ -68,7 +49,7 @@ data/ISLES_128/
 └── ensemble_masks_3D/
 ```
 
-Use `configs/isles22.yaml` and `configs/brats19.yaml` for full experiments. `configs/isles22_sample.yaml` is a one-epoch smoke-test configuration for the included sample files; it is not the paper split.
+Use `configs/isles22.yaml` and `configs/brats19.yaml` for full experiments. 
 
 ## Preprocessing
 
@@ -97,7 +78,8 @@ python scripts/preprocess/generate_bboxes.py \
   --expansion 0
 ```
 
-Each connected lesion receives a tight 2D box. Intersecting boxes are recursively merged. The paper's main experiments use `--expansion 0`; positive values reproduce the expanded-box ablations.
+Each connected lesion receives a tight 2D box. 
+> Intersecting boxes are recursively merged. The paper's main experiments use `--expansion 0`; positive values reproduce the expanded-box ablations.
 
 ### 3. Reconstruct image, label, and bbox volumes
 
@@ -109,23 +91,7 @@ python scripts/preprocess/build_volumes.py \
   --output-dir data/ISLES_128/3D_volumes/train_00_NIFTI
 ```
 
-If a label PNG is absent, the script treats that slice as empty by default. Use `--strict-labels` to require a label file for every image slice.
-
-### 4. Generate GrabCut pseudo-labels
-
-GrabCut is generated directly with the supplied preprocessing command:
-
-```bash
-python scripts/preprocess/generate_grabcut.py \
-  --images-dir data/ISLES_128/ISLES22_DWI_128/DWI/train \
-  --bbox-json data/ISLES_128/bbox_train_000.json \
-  --output-dir data/ISLES_128/grabcut_masks/train_000
-
-python scripts/preprocess/stack_masks.py \
-  --masks-dir data/ISLES_128/grabcut_masks/train_000 \
-  --reference-images data/ISLES_128/3D_volumes/train_00_NIFTI/images \
-  --output-dir data/ISLES_128/grabcut_masks/volumes_train_000
-```
+> If a label PNG is absent, the script treats that slice as empty by default. Use `--strict-labels` to require a label file for every image slice.
 
 ## External pseudo-label generators
 
@@ -167,6 +133,21 @@ python scripts/external/generate_sam2_3d.py \
 The selected external checkout must provide `build_sam2_video_predictor_npz`, as used by the original experiment script. Model configuration names and checkpoint locations come from the external repository and may differ across releases.
 
 The paper uses SAM-L, MedSAM2-B, and GrabCut for ISLES 2022, and MedSAM2-CT, SAM2-S, and GrabCut for BraTS 2019.
+
+For Generate GrabCut inference:
+
+```bash
+python scripts/preprocess/generate_grabcut.py \
+  --images-dir data/ISLES_128/ISLES22_DWI_128/DWI/train \
+  --bbox-json data/ISLES_128/bbox_train_000.json \
+  --output-dir data/ISLES_128/grabcut_masks/train_000
+
+python scripts/preprocess/stack_masks.py \
+  --masks-dir data/ISLES_128/grabcut_masks/train_000 \
+  --reference-images data/ISLES_128/3D_volumes/train_00_NIFTI/images \
+  --output-dir data/ISLES_128/grabcut_masks/volumes_train_000
+```
+
 
 ## Training and evaluation
 
