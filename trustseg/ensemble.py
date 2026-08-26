@@ -41,7 +41,7 @@ def aggregate_teacher_masks(
     consensus = np.sum(weight_array * stacked, axis=0)
     uncertainty = np.sum(weight_array * (stacked - consensus[None, ...]) ** 2, axis=0)
     uncertainty = np.clip(uncertainty / 0.25, 0.0, 1.0)
-    confidence = np.exp(-float(confidence_alpha) * uncertainty)
+    confidence = np.exp(-float(alpha_conf) * uncertainty)
     return (
         consensus.astype(np.float32),
         uncertainty.astype(np.float32),
@@ -54,7 +54,7 @@ def build_ensemble(
     reliability_scores: dict[str, float],
     bbox_dir: Path,
     output_dir: Path,
-    confidence_alpha: float = 1.0,
+    alpha_conf: float = 1.0,
 ) -> dict[str, float]:
     if set(teacher_dirs) != set(reliability_scores):
         raise ValueError("Teacher directories and reliability scores must use identical names")
@@ -81,7 +81,7 @@ def build_ensemble(
             masks,
             weights,
             bbox,
-            confidence_alpha,
+            alpha_conf,
         )
         prefix = output_dir / f"{case_id}_image_mask"
         write_volume(consensus, f"{prefix}.nii.gz", bbox_reference)
@@ -90,7 +90,7 @@ def build_ensemble(
 
     metadata = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
-        "confidence_alpha": confidence_alpha,
+        "alpha_conf": alpha_conf,
         "reliability_scores": reliability_scores,
         "normalized_weights": weights,
         "teacher_directories": {name: str(path) for name, path in teacher_dirs.items()},
@@ -98,4 +98,3 @@ def build_ensemble(
     with (output_dir / "ensemble_metadata.json").open("w", encoding="utf-8") as stream:
         json.dump(metadata, stream, indent=2)
     return weights
-
