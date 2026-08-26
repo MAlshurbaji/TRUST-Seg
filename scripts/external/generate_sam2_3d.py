@@ -9,7 +9,7 @@ import numpy as np
 import SimpleITK as sitk
 import torch
 from PIL import Image
-from skimage import measure
+from scipy import ndimage
 from tqdm import tqdm
 
 
@@ -70,8 +70,11 @@ def slice_boxes(bbox_volume: np.ndarray) -> list[tuple[int, np.ndarray]]:
 
 
 def largest_component(mask: np.ndarray) -> np.ndarray:
-    labels = measure.label(mask)
-    if labels.max() == 0:
+    labels, component_count = ndimage.label(
+        mask,
+        structure=np.ones((3, 3, 3), dtype=np.uint8),
+    )
+    if component_count == 0:
         return mask
     counts = np.bincount(labels.ravel())
     counts[0] = 0
@@ -115,6 +118,13 @@ def main() -> None:
             raise ValueError(f"Image/bbox shape mismatch for {identifier}")
 
         prompts = slice_boxes(bbox)
+        if not prompts:
+            middle_slice = volume.shape[0] // 2
+            full_box = np.asarray(
+                [0, 0, volume.shape[2] - 1, volume.shape[1] - 1],
+                dtype=np.int32,
+            )
+            prompts = [(middle_slice, full_box)]
         prepared = resize_rgb(normalize_uint8(volume), image_size) / 255.0
         prepared_tensor = torch.from_numpy(prepared).to(device)
         mean = torch.tensor((0.485, 0.456, 0.406), device=device)[:, None, None]

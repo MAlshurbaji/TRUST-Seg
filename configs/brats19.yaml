@@ -24,7 +24,7 @@ teachers:
 model:
   image_channels: 1
   with_bbox: true
-  supervised_with_bbox: false
+  supervised_with_bbox: true
   base_channels: 16
   dropout: 0.3
 

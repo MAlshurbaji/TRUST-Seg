@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from pathlib import Path
 from typing import Any
 
@@ -43,7 +42,7 @@ class VolumeDataset(Dataset[dict[str, Any]]):
 
     def __getitem__(self, index: int) -> dict[str, Any]:
         case_id, image_path = self.cases[index]
-        image, reference = read_volume(image_path)
+        image, _ = read_volume(image_path)
 
         if self.with_bbox:
             bbox_path = self.bbox_dir / f"{case_id}_bbox.nii.gz"
@@ -72,14 +71,12 @@ class VolumeDataset(Dataset[dict[str, Any]]):
         if self.with_bbox:
             channels.append(bbox)
 
-        spacing_xyz = reference.GetSpacing()
         return {
             "case_id": case_id,
             "inputs": torch.from_numpy(np.stack(channels, axis=0)),
             "target": torch.from_numpy(target[None, ...]),
             "weight": torch.from_numpy(confidence[None, ...]),
             "shape": tuple(int(value) for value in image.shape),
-            "spacing": tuple(float(value) for value in reversed(spacing_xyz)),
             "reference_path": str(image_path),
         }
 
@@ -106,7 +103,6 @@ def collate_volumes(samples: list[dict[str, Any]]) -> dict[str, Any]:
         "target": torch.stack([pad(sample["target"]) for sample in samples]),
         "weight": torch.stack([pad(sample["weight"]) for sample in samples]),
         "shape": [sample["shape"] for sample in samples],
-        "spacing": [sample["spacing"] for sample in samples],
         "reference_path": [sample["reference_path"] for sample in samples],
     }
 
@@ -129,8 +125,3 @@ def unpad(tensor: torch.Tensor, padding: tuple[int, int, int]) -> torch.Tensor:
     height_end = tensor.shape[-2] - pad_height if pad_height else tensor.shape[-2]
     width_end = tensor.shape[-1] - pad_width if pad_width else tensor.shape[-1]
     return tensor[..., :depth_end, :height_end, :width_end]
-
-
-def steps_per_epoch(dataset_size: int, batch_size: int) -> int:
-    return max(1, math.ceil(dataset_size / batch_size))
-

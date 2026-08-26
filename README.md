@@ -34,19 +34,116 @@ TRUST-Seg uses:
 The training commands use reconstructed NIfTI volumes with this structure:
 
 ```text
-data/ISLES_128/
-├── 3D_volumes/
-│   ├── train_00_NIFTI/
-│   │   ├── images/       # <case>_image.nii.gz
-│   │   ├── bboxes/      # <case>_bbox.nii.gz
-│   │   └── labels/      # <case>_label.nii.gz
-│   ├── val_00_NIFTI/
-│   └── test_00_NIFTI/
-├── sam_masks/
-├── sam2_masks_3D/
-├── medsam2_masks_3D/
-├── grabcut_masks/
-└── ensemble_masks_3D/
+data/
+├── ISLES_128/
+│   ├── ISLES22_DWI_128/
+│   │   ├── DWI/
+│   │   │   ├── train/
+│   │   │   ├── val/
+│   │   │   └── test/
+│   │   └── Mask/
+│   │       ├── train/
+│   │       ├── val/
+│   │       └── test/
+│   ├── bbox_train_000.json
+│   ├── bbox_val_000.json
+│   ├── bbox_test_000.json
+│   ├── bbox_masks/
+│   │   ├── train_000/
+│   │   ├── val_000/
+│   │   └── test_000/
+│   ├── 3D_volumes/
+│   │   ├── train_00_NIFTI/
+│   │   │   ├── images/       # <case>_image.nii.gz
+│   │   │   ├── bboxes/       # <case>_bbox.nii.gz
+│   │   │   └── labels/       # <case>_label.nii.gz
+│   │   ├── val_00_NIFTI/
+│   │   │   ├── images/
+│   │   │   ├── bboxes/
+│   │   │   └── labels/
+│   │   └── test_00_NIFTI/
+│   │       ├── images/
+│   │       ├── bboxes/
+│   │       └── labels/
+│   ├── sam_masks/
+│   │   └── vit_l/
+│   │       ├── train_000/             # 2D SAM-L masks
+│   │       ├── val_000/
+│   │       ├── test_000/
+│   │       ├── volumes_train_000/     # Stacked 3D masks
+│   │       ├── volumes_val_000/
+│   │       └── volumes_test_000/
+│   ├── medsam2_masks_3D/
+│   │   └── pix0/
+│   │       ├── train_00_2411/
+│   │       ├── val_00_2411/
+│   │       └── test_00_2411/
+│   ├── grabcut_masks/
+│   │   ├── train_000/                 # 2D GrabCut masks
+│   │   ├── val_000/
+│   │   ├── test_000/
+│   │   ├── volumes_train_000/         # Stacked 3D masks
+│   │   ├── volumes_val_000/
+│   │   └── volumes_test_000/
+│   └── ensemble_masks_3D/
+│       └── pix0/
+│           ├── alpha1/
+│           │   └── train_00/          # Initial consensus, uncertainty, confidence
+│           └── trustseg_refined/
+│               └── train_00/          # SDA-refined targets and confidence
+└── BraTS2019/
+    ├── 2D_slices/
+    │   ├── Images/
+    │   │   ├── train/
+    │   │   ├── val/
+    │   │   └── test/
+    │   └── Labels/
+    │       ├── train/
+    │       ├── val/
+    │       └── test/
+    ├── bbox_train_000.json
+    ├── bbox_val_000.json
+    ├── bbox_test_000.json
+    ├── bbox_masks/
+    │   ├── train_000/
+    │   ├── val_000/
+    │   └── test_000/
+    ├── 3D_volumes/
+    │   ├── train_00_NIFTI/
+    │   │   ├── images/
+    │   │   ├── bboxes/
+    │   │   └── labels/
+    │   ├── val_00_NIFTI/
+    │   │   ├── images/
+    │   │   ├── bboxes/
+    │   │   └── labels/
+    │   └── test_00_NIFTI/
+    │       ├── images/
+    │       ├── bboxes/
+    │       └── labels/
+    ├── medsam2_masks_3D/
+    │   └── pix0/
+    │       ├── train_00_CTLesion/
+    │       ├── val_00_CTLesion/
+    │       └── test_00_CTLesion/
+    ├── sam2_masks_3D/
+    │   └── pix0/
+    │       ├── train_00_s/
+    │       ├── val_00_s/
+    │       └── test_00_s/
+    ├── grabcut_masks/
+    │   ├── train_000/
+    │   ├── val_000/
+    │   ├── test_000/
+    │   ├── volumes_train_000/
+    │   ├── volumes_val_000/
+    │   └── volumes_test_000/
+    └── ensemble_masks_3D/
+        └── pix0/
+            ├── alpha1/
+            │   └── train_00/
+            └── trustseg_refined/
+                └── train_00/
 ```
 
 Use `configs/isles22.yaml` and `configs/brats19.yaml` for full experiments. 
@@ -213,4 +310,3 @@ TRUST-Seg/
 ## Acknowledgements
 
 TRUST-Seg uses the 3D U-Net architecture and builds on pseudo-labels generated with SAM, SAM2, MedSAM, MedSAM2, and GrabCut. We thank the authors of these projects and the organizers of ISLES 2022 and BraTS 2019 for making their work and datasets available to the research community.
-

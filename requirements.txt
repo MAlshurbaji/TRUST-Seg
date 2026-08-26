@@ -1,11 +1,9 @@
 numpy
 PyYAML
 SimpleITK
-nibabel
 opencv-python-headless
 Pillow
-scikit-image
 scipy
 MedPy
+torch==2.6.0
 tqdm
-

@@ -60,7 +60,7 @@ class UNet3D(nn.Module):
         self.up3 = UpBlock(channels[3], channels[2], channels[2])
         self.up2 = UpBlock(channels[2], channels[1], channels[1])
         self.up1 = UpBlock(channels[1], channels[0], channels[0])
-        self.dropout = nn.Dropout3d(p=dropout)
+        self.dropout = nn.Dropout(p=dropout)
         self.output = nn.Conv3d(channels[0], out_channels, kernel_size=1)
 
         self.apply(self._initialize)
@@ -84,4 +84,3 @@ class UNet3D(nn.Module):
         decoded = self.up2(decoded, enc2)
         decoded = self.dropout(self.up1(decoded, enc1))
         return self.output(decoded)
-

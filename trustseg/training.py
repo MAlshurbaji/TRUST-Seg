@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import SimpleITK as sitk
 import torch
 from torch.nn import functional as F
 from torch.optim import Adam
@@ -91,7 +90,7 @@ def evaluate_model(
                 probability_volume = probability[index, 0, :depth, :height, :width]
                 target_volume = target[index, 0, :depth, :height, :width]
                 prediction = probability_volume >= threshold
-                metrics = binary_metrics(prediction, target_volume, batch["spacing"][index])
+                metrics = binary_metrics(prediction, target_volume)
                 case_metrics.append(metrics)
                 rows.append({"case_id": case_id, **metrics.to_dict()})
 
@@ -232,4 +231,3 @@ def write_evaluation(
         writer = csv.DictWriter(stream, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(cases)
-

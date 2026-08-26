@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 import numpy as np
 import torch
@@ -54,6 +53,7 @@ def main() -> None:
     model.eval()
 
     refinement = nested(config, "refinement")
+    alpha_conf = float(nested(config, "ensemble", "alpha_conf"))
     factor = int(nested(config, "training").get("padding_factor", 16))
     with torch.inference_mode():
         for batch in tqdm(loader, desc="Refining pseudo-labels"):

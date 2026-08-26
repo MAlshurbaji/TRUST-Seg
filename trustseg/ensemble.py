@@ -24,7 +24,7 @@ def aggregate_teacher_masks(
     masks: dict[str, np.ndarray],
     weights: dict[str, float],
     bbox: np.ndarray,
-    confidence_alpha: float,
+    alpha_conf: float,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     missing = set(weights) - set(masks)
     if missing:

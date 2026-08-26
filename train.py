@@ -40,7 +40,7 @@ def main() -> None:
         target_dir = train_root / "labels"
         target_suffix = "_label.nii.gz"
         confidence_dir = None
-        with_bbox = bool(config["model"].get("supervised_with_bbox", False))
+        with_bbox = bool(config["model"].get("supervised_with_bbox", True))
 
     train_dataset = VolumeDataset(
         volume_root=train_root,
@@ -76,4 +76,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
