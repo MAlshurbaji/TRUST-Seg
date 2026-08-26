@@ -28,14 +28,14 @@ def main() -> None:
         config,
         args.output or nested(config, "paths", "initial_pseudo_labels"),
     )
-    alpha = float(nested(config, "ensemble", "confidence_alpha"))
+    alpha_conf = float(nested(config, "ensemble", "alpha_conf"))
 
     weights = build_ensemble(
         teacher_dirs=teacher_dirs,
         reliability_scores=reliabilities,
         bbox_dir=train_root / "bboxes",
         output_dir=output_dir,
-        confidence_alpha=alpha,
+        alpha_conf=alpha_conf,
     )
     print(f"Saved ensemble pseudo-labels to {output_dir}")
     print("Normalized teacher weights:")
@@ -45,4 +45,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
